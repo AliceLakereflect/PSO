@@ -23,7 +23,7 @@ namespace PSO
             var fileHandler = new FileHandler();
             try
             {
-                randomList = fileHandler.Readtxt("rand");
+                randomList = fileHandler.Readtxt("random");
                 Console.WriteLine("\nBegin PSO demo\n");
                 ran = new Random(114);
                 //var randomList = new List<double>();
@@ -77,8 +77,8 @@ namespace PSO
         private static double PSO(double w, double c1, double c2)
         {
             List<double> results = new List<double>();
-            for (var l = 0; l < 50; l++)
-            {
+            //for (var l = 0; l < 50; l++)
+            //{
                 int iteration = 0;
 
                 Particle[] swarm = new Particle[NUMBER_PARTICLES];
@@ -123,7 +123,7 @@ namespace PSO
                     //Console.WriteLine($"x{i} = {bestGlobalPosition[i].ToString("F4")}({bestGlobalPosition[i]})");
                 //}
                 //Console.WriteLine("");
-            }
+            //}
             double sum = 0;
             var avg50 = new List<AvgResult>();
             results.ForEach(r =>
