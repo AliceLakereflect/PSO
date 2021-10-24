@@ -16,48 +16,38 @@ namespace PSO
         const double MINX = -100.0;
         const double MAXX = 100.0;
         const double RAND_MAX = 2147483647.0;
-        static List<int> randomList  = new List<int> { 1915998, 2137407328, 298514680, 614427368, 1579399200, 2064477480, 779721781, 838759273, 944442403, 1191832244 };
+        static Queue<int> randomList;
 
         static void Main(string[] args)
         {
             var fileHandler = new FileHandler();
             try
             {
+                randomList = fileHandler.Readtxt("rand");
                 Console.WriteLine("\nBegin PSO demo\n");
                 ran = new Random(114);
-                //Console.WriteLine("first 100 Random with seed 114\n");
                 //var randomList = new List<double>();
-                //var randomList32 = new List<double>();
-                //var randomList32Less1 = new List<double>();
-                for (var i =0; i < 100; i++)
-                {
-                    //var random = ran.NextDouble();
-                    //var random32 = ran.Next();
-                    //var random32Less1 = random32 / RAND_MAX;
-                    //Console.WriteLine($"random {i}: {random}\n");
-                    //Console.WriteLine($"random32 {i}: {random32}\n");
-                    //Console.WriteLine($"random32 0~1 {i}: {random32 / RAND_MAX}\n");
-                    //randomList.Add(random);
-                    //randomList32.Add(random32);
-                    //randomList32Less1.Add(random32Less1);
-                }
+                //for (var i =0; i <5000; i++)
+                //{
+                //    var random = ran.Next();//rand()
+                //    Console.WriteLine($"random {i}: {random}\n");
+                //    randomList.Add(random);
+                //}
 
                 //fileHandler.OutputString(randomList, "randomList");
-                //fileHandler.OutputString(randomList32, "randomList32");
-                //fileHandler.OutputString(randomList32Less1, "randomList32Less1");
 
 
 
-                //double wi = 0.1; // inertia weight
-                //double c1i = 0.3; // cognitive weight
-                //double c2i = 1.8; // social weight
+                double wi = 0.1; // inertia weight
+                double c1i = 0.3; // cognitive weight
+                double c2i = 1.8; // social weight
                 var avgResults = new List<AvgResult>();
-                for (var wi = 1.0; wi >= 0.1; wi -= 0.1)
-                {
-                    for (var c1i = 2.0; c1i >= 0.1; c1i -= 0.1)
-                    {
-                        for (var c2i = 2.0; c2i >= 0.1; c2i -= 0.1)
-                        {
+                //for (var wi = 1.0; wi >= 0.1; wi -= 0.1)
+                //{
+                //    for (var c1i = 2.0; c1i >= 0.1; c1i -= 0.1)
+                //    {
+                //        for (var c2i = 2.0; c2i >= 0.1; c2i -= 0.1)
+                //        {
                             Console.WriteLine($"\nw = {wi}\tc1 = {c1i}\tc2i = {c2i}\t\n");
                             wi = Math.Round(wi, 1);
                             c1i = Math.Round(c1i, 1);
@@ -71,9 +61,9 @@ namespace PSO
                                     c2 = c2i,
                                     avg = avg50
                                 });
-                        }
-                    }
-                }
+                //        }
+                //    }
+                //}
 
                 Console.WriteLine("\nEnd PSO demonstration\n");
                 fileHandler.OutputCsv(avgResults, "pso_result");
@@ -187,8 +177,8 @@ namespace PSO
             double r1, r2; // randomizations
             for (int j = 0; j < currP.velocity.Length; ++j)
             {
-                r1 = ran.NextDouble();
-                r2 = ran.NextDouble();
+                r1 = randomList.Dequeue();
+                r2 = randomList.Dequeue();
 
                 newVelocity[j] = (w * currP.velocity[j]) +
                   (c1 * r1 * (currP.bestPosition[j] - currP.position[j])) +
@@ -205,6 +195,8 @@ namespace PSO
         private static double InitializeAllParticleObj(Particle[] swarm, double[] bestGlobalPosition, double bestGlobalFitness)
         {
             Console.WriteLine("{x, v}");
+            var rx = new double();
+            var rv = new double();
             for (int i = 0; i < swarm.Length; ++i)
             {
                 //position
@@ -213,7 +205,8 @@ namespace PSO
                 {
                     double lo = MINX;
                     double hi = MAXX;
-                    randomPosition[j] = (hi - lo) * (randomList[i*2] / RAND_MAX) + lo;
+                    rx = randomList.Dequeue();
+                    randomPosition[j] = (hi - lo) * ( rx / RAND_MAX) + lo;
                 }
                 double fitness = ObjectiveFunction(randomPosition);
                 // velocity
@@ -222,7 +215,8 @@ namespace PSO
                 {
                     double lo = -1.0 * Math.Abs(MAXX - MINX);
                     double hi = Math.Abs(MAXX - MINX);
-                    randomVelocity[j] = (hi - lo) * (randomList[i*2+1] / RAND_MAX) + lo;
+                    rv = randomList.Dequeue();
+                    randomVelocity[j] = (hi - lo) * ( rv / RAND_MAX) + lo;
                 }
                 swarm[i] = new Particle(randomPosition, fitness, randomVelocity, randomPosition, fitness);
 
@@ -232,7 +226,7 @@ namespace PSO
                     bestGlobalFitness = swarm[i].fitness;
                     swarm[i].position.CopyTo(bestGlobalPosition, 0);
                 }
-                Console.WriteLine("{"+randomPosition[0]+$" : ran({randomList[i*2]}), "+randomVelocity[0]+$" : ran({randomList[i*2+1]})"+"}");
+                Console.WriteLine("{"+randomPosition[0]+$" : ran({rx}), "+randomVelocity[0]+$" : ran({rv})"+"}");
             }
 
             return bestGlobalFitness;

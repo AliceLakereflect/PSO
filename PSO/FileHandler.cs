@@ -40,11 +40,27 @@ namespace PSO
                 }
             }
         }
+
+        public Queue<int> Readtxt(string fileName)
+        {
+            var result = new Queue<int>();
+            var path = Path.Combine(Environment.CurrentDirectory, $"{fileName}.txt");
+            using (var sr = new StreamReader(path))
+            {
+                while (sr.Peek() >= 0)
+                {
+                    var random = sr.ReadLine();
+                    result.Enqueue(Int32.Parse(random));
+                }
+            }
+            return result;
+        }
     }
 
     public interface IFileHandler
     {
         void OutputCsv(List<AvgResult> list, string fileName);
         void OutputString(List<double> list, string fileName);
+        Queue<int> Readtxt(string fileName);
     }
 }
