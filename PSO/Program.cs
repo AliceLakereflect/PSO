@@ -32,7 +32,7 @@ namespace PSO
                 for (var i =0; i < 100; i++)
                 {
                     //var random = ran.NextDouble();
-                    var random32 = ran.Next();
+                    //var random32 = ran.Next();
                     //var random32Less1 = random32 / RAND_MAX;
                     //Console.WriteLine($"random {i}: {random}\n");
                     //Console.WriteLine($"random32 {i}: {random32}\n");
@@ -213,7 +213,7 @@ namespace PSO
                 {
                     double lo = MINX;
                     double hi = MAXX;
-                    randomPosition[j] = (hi - lo) * ran.NextDouble() + lo;
+                    randomPosition[j] = (hi - lo) * (randomList[i*2] / RAND_MAX) + lo;
                 }
                 double fitness = ObjectiveFunction(randomPosition);
                 // velocity
@@ -222,7 +222,7 @@ namespace PSO
                 {
                     double lo = -1.0 * Math.Abs(MAXX - MINX);
                     double hi = Math.Abs(MAXX - MINX);
-                    randomVelocity[j] = (hi - lo) * ran.NextDouble() + lo;
+                    randomVelocity[j] = (hi - lo) * (randomList[i*2+1] / RAND_MAX) + lo;
                 }
                 swarm[i] = new Particle(randomPosition, fitness, randomVelocity, randomPosition, fitness);
 
