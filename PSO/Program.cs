@@ -23,7 +23,7 @@ namespace PSO
             var fileHandler = new FileHandler();
             try
             {
-                randomList = fileHandler.Readtxt("random");
+                randomList = fileHandler.Readtxt("random_30w");
                 Console.WriteLine("\nBegin PSO demo\n");
                 ran = new Random(114);
                 //var randomList = new List<double>();
@@ -66,7 +66,7 @@ namespace PSO
                 //}
 
                 Console.WriteLine("\nEnd PSO demonstration\n");
-                fileHandler.OutputCsv(avgResults, "pso_result");
+                fileHandler.OutputCsv(avgResults, "pso_result_add_rand_list");
             }
             catch (Exception ex)
             {
@@ -77,8 +77,8 @@ namespace PSO
         private static double PSO(double w, double c1, double c2)
         {
             List<double> results = new List<double>();
-            //for (var l = 0; l < 50; l++)
-            //{
+            for (var l = 0; l < 35; l++)
+            {
                 int iteration = 0;
 
                 Particle[] swarm = new Particle[NUMBER_PARTICLES];
@@ -94,6 +94,7 @@ namespace PSO
                 // Main processing loop
                 do
                 {
+                    Console.WriteLine("x , v");
                     for (int i = 0; i < swarm.Length; ++i)
                     {
                         Particle currP = swarm[i];
@@ -106,10 +107,11 @@ namespace PSO
 
                         UpdateGlobalBest(ref bestGlobalPosition, ref bestGlobalFitness, currP, newPosition, newFitness);
 
+                        Console.WriteLine($"{swarm[i].position[0]}, {swarm[i].velocity[0]}");
                     } // each Particle
 
                     //Console.WriteLine($"itereation:{iteration}");
-                    //Console.WriteLine($"best global position:{bestGlobalPosition[0]}");
+                    Console.WriteLine($"best global position:{bestGlobalPosition[0]}");
                     //Console.WriteLine($"current best fitness:{bestGlobalFitness}");
                     iteration++;
                 } while (iteration <= NUMBER_ITERATIONS && bestGlobalFitness != 0);
@@ -120,10 +122,10 @@ namespace PSO
                 //Console.WriteLine("Best position/solution:");
                 //for (int i = 0; i < bestGlobalPosition.Length; ++i)
                 //{
-                    //Console.WriteLine($"x{i} = {bestGlobalPosition[i].ToString("F4")}({bestGlobalPosition[i]})");
+                //Console.WriteLine($"x{i} = {bestGlobalPosition[i].ToString("F4")}({bestGlobalPosition[i]})");
                 //}
                 //Console.WriteLine("");
-            //}
+            }
             double sum = 0;
             var avg50 = new List<AvgResult>();
             results.ForEach(r =>
@@ -163,10 +165,13 @@ namespace PSO
             for (int j = 0; j < currP.position.Length; ++j)
             {
                 newPosition[j] = currP.position[j] + newVelocity[j];
-                if (newPosition[j] < MINX)
-                    newPosition[j] = MINX;
-                else if (newPosition[j] > MAXX)
-                    newPosition[j] = MAXX;
+                double lo = MINX;
+                double hi = MAXX;
+                if (newPosition[j] < MINX || newPosition[j] > MAXX)
+                {
+                    Console.WriteLine($"Position x:{newPosition[j]} is out of range. Get another random position.");
+                    newPosition[j] = (hi - lo) * (randomList.Dequeue() / RAND_MAX) + lo;
+                }
             }
             newPosition.CopyTo(currP.position, 0);
         }
@@ -177,8 +182,8 @@ namespace PSO
             double r1, r2; // randomizations
             for (int j = 0; j < currP.velocity.Length; ++j)
             {
-                r1 = randomList.Dequeue();
-                r2 = randomList.Dequeue();
+                r1 = randomList.Dequeue() / RAND_MAX;
+                r2 = randomList.Dequeue() / RAND_MAX;
 
                 newVelocity[j] = (w * currP.velocity[j]) +
                   (c1 * r1 * (currP.bestPosition[j] - currP.position[j])) +
@@ -194,7 +199,7 @@ namespace PSO
 
         private static double InitializeAllParticleObj(Particle[] swarm, double[] bestGlobalPosition, double bestGlobalFitness)
         {
-            Console.WriteLine("{x, v}");
+            Console.WriteLine("init x , init v");
             var rx = new double();
             var rv = new double();
             for (int i = 0; i < swarm.Length; ++i)
@@ -226,8 +231,9 @@ namespace PSO
                     bestGlobalFitness = swarm[i].fitness;
                     swarm[i].position.CopyTo(bestGlobalPosition, 0);
                 }
-                Console.WriteLine("{"+randomPosition[0]+$" : ran({rx}), "+randomVelocity[0]+$" : ran({rv})"+"}");
+                Console.WriteLine($"{swarm[i].position[0]}, {swarm[i].velocity[0]}");
             }
+            Console.WriteLine($"best global position:{bestGlobalPosition[0]}");
 
             return bestGlobalFitness;
         }
